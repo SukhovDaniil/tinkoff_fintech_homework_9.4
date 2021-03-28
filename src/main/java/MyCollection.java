@@ -56,11 +56,18 @@ public class MyCollection<E> implements Collection<E> {
      */
     @Override
     public boolean contains(final Object o) {
-        for (Object e : this.elementData) {
-            if (e.equals(o)) {
-                return true;
+        for (E e : this) {
+            if (e == null || o == null) {
+                if (e == o) {
+                    return true;
+                }
+            } else {
+                if (e.equals(o)) {
+                    return true;
+                }
             }
         }
+
         return false;
     }
 
@@ -94,7 +101,7 @@ public class MyCollection<E> implements Collection<E> {
         } else {
             if (a.length >= this.size) {
                 for (int i = 0; i < this.size; i++) {
-                    a[i] = (T) Arrays.copyOfRange(this.elementData, i, i + 1);
+                    a[i] = (T) Arrays.copyOfRange(this.elementData, i, i + 1)[0];
                 }
             }
         }
@@ -111,9 +118,18 @@ public class MyCollection<E> implements Collection<E> {
     public boolean remove(final Object o) {
         Iterator<E> iterator = this.iterator();
         while (iterator.hasNext()) {
-            if (iterator.next().equals(o)) {
-                iterator.remove();
-                return true;
+            E element = iterator.next();
+
+            if (element == null || o == null) {
+                if (element == o) {
+                    iterator.remove();
+                    return true;
+                }
+            } else {
+                if (element.equals(o)) {
+                    iterator.remove();
+                    return true;
+                }
             }
         }
         return false;
@@ -163,11 +179,8 @@ public class MyCollection<E> implements Collection<E> {
         for (Object deletedElement : c) {
             Iterator<E> thisIterator = this.iterator();
 
-            while (thisIterator.hasNext()) {
-                if (thisIterator.next().equals(deletedElement)) {
-                    thisIterator.remove();
-                    wasDeletion = true;
-                }
+            while (this.remove(deletedElement)) {
+                wasDeletion = true;
             }
         }
 
@@ -183,11 +196,11 @@ public class MyCollection<E> implements Collection<E> {
     @Override
     public boolean retainAll(final Collection<?> c) {
         boolean wasDeleting = false;
-        for (Object e : this) {
-            if (!c.contains(e)) {
-                while (this.contains(e)) {
-                    this.remove(e);
-                }
+        Iterator<E> iterator = this.iterator();
+
+        while (iterator.hasNext()) {
+            if (!c.contains(iterator.next())) {
+                iterator.remove();
                 wasDeleting = true;
             }
         }
